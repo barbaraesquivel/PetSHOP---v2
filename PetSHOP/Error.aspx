@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" %>
 <script runat="server">
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -6,7 +6,7 @@
         if (motivo == "integridad")
         {
             lblTitulo.Text  = "Sistema bloqueado";
-            lblMensaje.Text = "Se detectaron alteraciones en los datos del sistema. Contacte al WebMaster para restaurar la integridad.";
+            lblMensaje.Text = "Se produjo un error inesperado. Por favor intente mas tarde.";
         }
         else
         {
