@@ -1,0 +1,17 @@
+[2026-06-01 10:25:14] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 15:08:51] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 15:35:18] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 15:48:26] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 16:06:41] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 16:36:23] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 16:43:01] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 17:09:15] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 17:56:53] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 18:03:39] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-20 18:14:07] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-21 22:07:58] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-21 22:57:10] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-21 23:21:13] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-21 23:52:01] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-22 00:09:41] | sistema | DB_OK | Conexion a la base de datos exitosa
+[2026-06-22 00:20:39] | sistema | DB_OK | Conexion a la base de datos exitosa
