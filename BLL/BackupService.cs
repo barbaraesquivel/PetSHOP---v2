@@ -36,9 +36,7 @@ namespace BLL
         private static readonly string[] OrdenInsert =
             { "Usuarios", "Clientes", "Productos", "Pedidos", "DetallePedido", "LogBitacora" };
 
-        // ----------------------------------------------------------------
         // Generacion
-        // ----------------------------------------------------------------
 
         public static string GenerarContenidoBackup()
         {
@@ -87,9 +85,7 @@ namespace BLL
             File.WriteAllText(rutaCompleta, contenido, Encoding.UTF8);
         }
 
-        // ----------------------------------------------------------------
         // Retencion
-        // ----------------------------------------------------------------
 
         public static void AplicarRetencion(string carpeta)
         {
@@ -104,9 +100,7 @@ namespace BLL
                 File.Delete(archivos[i]);
         }
 
-        // ----------------------------------------------------------------
         // Consulta de backups disponibles
-        // ----------------------------------------------------------------
 
         public static List<InfoBackup> ObtenerInfoBackups(string carpeta)
         {
@@ -145,9 +139,7 @@ namespace BLL
             }
         }
 
-        // ----------------------------------------------------------------
         // Restauracion
-        // ----------------------------------------------------------------
 
         public static void RestaurarDesdeContenido(string contenido)
         {
@@ -181,9 +173,7 @@ namespace BLL
             }
         }
 
-        // ----------------------------------------------------------------
         // Helpers privados
-        // ----------------------------------------------------------------
 
         private static bool TieneIdentidad(string tabla, SqlConnection con)
         {
@@ -224,7 +214,15 @@ namespace BLL
             if (val is float)    return ((float)val).ToString(CultureInfo.InvariantCulture);
             if (val is int || val is long || val is short || val is byte)
                 return val.ToString();
-            return "'" + val.ToString().Replace("'", "''") + "'";
+
+            // Los saltos de línea en strings rompen el restore (que divide por línea).
+            // Se convierten a concatenación SQL de una sola línea: 'a' + CHAR(10) + 'b'
+            string s = val.ToString()
+                          .Replace("'",    "''")
+                          .Replace("\r\n", "' + CHAR(13) + CHAR(10) + '")
+                          .Replace("\r",   "' + CHAR(13) + '")
+                          .Replace("\n",   "' + CHAR(10) + '");
+            return "'" + s + "'";
         }
     }
 }

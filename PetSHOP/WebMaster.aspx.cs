@@ -13,9 +13,7 @@ using SERV;
 
 public partial class WebMaster : System.Web.UI.Page
 {
-    // ================================================================
     // CICLO DE VIDA
-    // ================================================================
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -58,10 +56,10 @@ public partial class WebMaster : System.Web.UI.Page
             pnlContenido.Visible = true;
             pnlBloqueado.Visible = false;
             pnlDenegado.Visible  = false;
-            ActualizarEstadoIntegridad();
-            ActualizarInfoBackups();
             if (!IsPostBack)
             {
+                ActualizarEstadoIntegridad();
+                ActualizarInfoBackups();
                 CargarAcciones();
                 CargarBitacora();
                 Bitacora.Registrar(Session["Usuario"].ToString(), "ACCESO", "WebMaster.aspx");
@@ -69,9 +67,7 @@ public partial class WebMaster : System.Web.UI.Page
         }
     }
 
-    // ================================================================
-    // SECCION: INTEGRIDAD (modo normal)
-    // ================================================================
+    // INTEGRIDAD (modo normal)
 
     private void ActualizarEstadoIntegridad()
     {
@@ -180,9 +176,7 @@ public partial class WebMaster : System.Web.UI.Page
         ActualizarInfoBackups();
     }
 
-    // ================================================================
-    // SECCION: GESTION DE BACKUPS (modo normal)
-    // ================================================================
+    // GESTION DE BACKUPS (modo normal)
 
     private void ActualizarInfoBackups()
     {
@@ -234,6 +228,7 @@ public partial class WebMaster : System.Web.UI.Page
         }
         catch (Exception ex)
         {
+            Bitacora.Registrar(Session["Usuario"].ToString(), "BACKUP_ERROR", ex.Message);
             lblGenBackupMsg.Text    = "Error al generar backup: " + ex.Message;
             lblGenBackupMsg.CssClass = "msg msg-err";
             lblGenBackupMsg.Visible  = true;
@@ -244,20 +239,20 @@ public partial class WebMaster : System.Web.UI.Page
     {
         if (e.CommandName != "Restaurar") return;
 
-        string nombreArchivo = e.CommandArgument.ToString();
-        string carpeta       = Server.MapPath("~/App_Data/backups/");
-        string rutaCompleta  = Path.Combine(carpeta, nombreArchivo);
-
-        if (!File.Exists(rutaCompleta))
-        {
-            lblGenBackupMsg.Text    = "El archivo no existe: " + nombreArchivo + ". Actualiza la lista.";
-            lblGenBackupMsg.CssClass = "msg msg-err";
-            lblGenBackupMsg.Visible  = true;
-            return;
-        }
-
         try
         {
+            string nombreArchivo = e.CommandArgument.ToString();
+            string carpeta       = Server.MapPath("~/App_Data/backups/");
+            string rutaCompleta  = Path.Combine(carpeta, nombreArchivo);
+
+            if (!File.Exists(rutaCompleta))
+            {
+                lblGenBackupMsg.Text    = "El archivo no existe: " + nombreArchivo + ". Actualiza la lista.";
+                lblGenBackupMsg.CssClass = "msg msg-err";
+                lblGenBackupMsg.Visible  = true;
+                return;
+            }
+
             string contenido = File.ReadAllText(rutaCompleta, Encoding.UTF8);
             BackupService.RestaurarDesdeContenido(contenido);
             Bitacora.Registrar(Session["Usuario"].ToString(), "RESTORE_SQL",
@@ -271,8 +266,8 @@ public partial class WebMaster : System.Web.UI.Page
         catch (Exception ex)
         {
             Bitacora.Registrar(Session["Usuario"].ToString(), "RESTORE_ERROR",
-                "Fallo al restaurar " + nombreArchivo + ": " + ex.Message);
-            lblGenBackupMsg.Text    = "Error en la restauracion (rollback aplicado): " + ex.Message;
+                "Fallo al restaurar: " + ex.Message);
+            lblGenBackupMsg.Text    = "Error en la restauracion (rollback aplicado): " + ex.GetType().Name + " — " + ex.Message;
             lblGenBackupMsg.CssClass = "msg msg-err";
             lblGenBackupMsg.Visible  = true;
         }
@@ -328,9 +323,7 @@ public partial class WebMaster : System.Web.UI.Page
         }
     }
 
-    // ================================================================
-    // SECCION: BITACORA (modo normal)
-    // ================================================================
+    // BITACORA (modo normal)
 
     private void CargarAcciones()
     {
@@ -397,9 +390,7 @@ public partial class WebMaster : System.Web.UI.Page
         CargarBitacora();
     }
 
-    // ================================================================
     // MODO BLOQUEADO
-    // ================================================================
 
     private void ActualizarEstadoIntegridadBloqueado()
     {
@@ -568,9 +559,7 @@ public partial class WebMaster : System.Web.UI.Page
             ddlBackups.Items.Add(new ListItem(Path.GetFileName(arch), Path.GetFileName(arch)));
     }
 
-    // ================================================================
     // HELPERS COMPARTIDOS
-    // ================================================================
 
     private void RecalcularHashes(SqlConnection con)
     {

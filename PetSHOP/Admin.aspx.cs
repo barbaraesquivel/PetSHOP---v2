@@ -51,17 +51,18 @@ public partial class Admin : System.Web.UI.Page
             lblModo.Visible = true;
         }
 
-        CargarUsuarios();
-        CargarProductos();
-        CargarClientes();
-        CargarAlertaStock();
-        CargarPedidos();
-
         if (!IsPostBack)
+        {
+            CargarUsuarios();
+            CargarProductos();
+            CargarClientes();
+            CargarAlertaStock();
+            CargarPedidos();
             BLLAdmin.RegistrarAcceso(Session["Usuario"].ToString());
+        }
     }
 
-    // ===== CARGA DE GRILLAS =====
+    // CARGA DE GRILLAS
 
     private void CargarUsuarios()
     {
@@ -147,7 +148,7 @@ public partial class Admin : System.Web.UI.Page
         }
     }
 
-    // ===== ACCIONES USUARIOS =====
+    // ACCIONES USUARIOS
 
     protected void btnAgregarUsuario_Click(object sender, EventArgs e)
     {
@@ -262,7 +263,7 @@ public partial class Admin : System.Web.UI.Page
         pnlEditarUsuario.Visible = false;
     }
 
-    // ===== ACCIONES PRODUCTOS =====
+    // ACCIONES PRODUCTOS
 
     protected void btnAgregarProducto_Click(object sender, EventArgs e)
     {
@@ -381,7 +382,7 @@ public partial class Admin : System.Web.UI.Page
         pnlEditarProducto.Visible = false;
     }
 
-    // ===== STOCK =====
+    // STOCK
 
     protected void btnGestionarStock_Click(object sender, EventArgs e)
     {
@@ -456,7 +457,7 @@ public partial class Admin : System.Web.UI.Page
         catch { }
     }
 
-    // ===== CLIENTES =====
+    // CLIENTES
 
     private void CargarClientes()
     {
@@ -472,7 +473,7 @@ public partial class Admin : System.Web.UI.Page
         }
     }
 
-    // ===== PEDIDOS =====
+    // PEDIDOS
 
     private void CargarPedidos()
     {
@@ -511,53 +512,65 @@ public partial class Admin : System.Web.UI.Page
 
     protected void gvPedidos_RowCommand(object sender, GridViewCommandEventArgs e)
     {
-        int idPedido = int.Parse(e.CommandArgument.ToString());
+        try
+        {
+            int idPedido;
+            if (!int.TryParse(e.CommandArgument.ToString(), out idPedido) || idPedido <= 0)
+            {
+                MostrarMensajePedido("Pedido invalido. Recarga la pagina e intenta de nuevo.", true);
+                return;
+            }
 
-        if (e.CommandName == "AvanzarEstado")
-        {
-            try
+            if (e.CommandName == "AvanzarEstado")
             {
-                string nuevoEstado = PedidoBLL.AvanzarEstado(idPedido, Session["Usuario"].ToString());
-                MostrarMensaje("Pedido #" + idPedido + " avanzado a: " + nuevoEstado, false);
-                CargarPedidos();
-                CargarAlertaStock();
+                try
+                {
+                    string nuevoEstado = PedidoBLL.AvanzarEstado(idPedido, Session["Usuario"].ToString());
+                    MostrarMensajePedido("Pedido #" + idPedido + " avanzado a: " + nuevoEstado, false);
+                    CargarPedidos();
+                    CargarAlertaStock();
+                }
+                catch (Exception ex)
+                {
+                    MostrarMensajePedido("Error al avanzar estado: " + ex.Message, true);
+                }
             }
-            catch (Exception ex)
+            else if (e.CommandName == "CancelarPedido")
             {
-                MostrarMensaje("Error al avanzar estado: " + ex.Message, true);
+                try
+                {
+                    PedidoBLL.Cancelar(idPedido, Session["Usuario"].ToString(), esAdmin: true);
+                    MostrarMensajePedido("Pedido #" + idPedido + " cancelado. Stock restaurado.", false);
+                    pnlDetallePedidoAdmin.Visible = false;
+                    CargarPedidos();
+                    CargarAlertaStock();
+                }
+                catch (Exception ex)
+                {
+                    MostrarMensajePedido("Error al cancelar: " + ex.Message, true);
+                }
+            }
+            else if (e.CommandName == "VerDetalle")
+            {
+                try
+                {
+                    DataTable dt = PedidoBLL.GetDetalleByPedido(idPedido);
+                    lblDetallePedidoTitulo.Text     = "Detalle del pedido #" + idPedido;
+                    gvDetallePedidoAdmin.DataSource = dt;
+                    gvDetallePedidoAdmin.DataBind();
+                    pnlDetallePedidoAdmin.Visible   = true;
+                    Page.ClientScript.RegisterStartupScript(GetType(), "scrollDetalle",
+                        "document.getElementById('" + pnlDetallePedidoAdmin.ClientID + "').scrollIntoView({behavior:'smooth'});", true);
+                }
+                catch (Exception ex)
+                {
+                    MostrarMensajePedido("Error al ver detalle: " + ex.Message, true);
+                }
             }
         }
-        else if (e.CommandName == "CancelarPedido")
+        catch (Exception ex)
         {
-            try
-            {
-                PedidoBLL.Cancelar(idPedido, Session["Usuario"].ToString(), esAdmin: true);
-                MostrarMensaje("Pedido #" + idPedido + " cancelado. Stock restaurado.", false);
-                pnlDetallePedidoAdmin.Visible = false;
-                CargarPedidos();
-                CargarAlertaStock();
-            }
-            catch (Exception ex)
-            {
-                MostrarMensaje("Error al cancelar: " + ex.Message, true);
-            }
-        }
-        else if (e.CommandName == "VerDetalle")
-        {
-            try
-            {
-                DataTable dt = PedidoBLL.GetDetalleByPedido(idPedido);
-                lblDetallePedidoTitulo.Text   = "Detalle del pedido #" + idPedido;
-                gvDetallePedidoAdmin.DataSource = dt;
-                gvDetallePedidoAdmin.DataBind();
-                pnlDetallePedidoAdmin.Visible = true;
-                Page.ClientScript.RegisterStartupScript(GetType(), "scrollDetalle",
-                    "document.getElementById('" + pnlDetallePedidoAdmin.ClientID + "').scrollIntoView({behavior:'smooth'});", true);
-            }
-            catch (Exception ex)
-            {
-                MostrarMensaje("Error al ver detalle: " + ex.Message, true);
-            }
+            MostrarMensaje(ex.GetType().Name + ": " + ex.Message, true);
         }
     }
 
@@ -573,7 +586,7 @@ public partial class Admin : System.Web.UI.Page
         lblMensajePedido.Visible  = true;
     }
 
-    // ===== MENSAJES =====
+    // MENSAJES
 
     private void MostrarMensaje(string texto, bool esError)
     {

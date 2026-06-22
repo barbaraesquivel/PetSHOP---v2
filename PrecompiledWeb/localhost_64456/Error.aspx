@@ -2,8 +2,24 @@
 <script runat="server">
     protected void Page_Load(object sender, EventArgs e)
     {
-        lblTitulo.Text  = "No esta disponible el sistema";
-        lblMensaje.Text = "Se produjo un error inesperado. Por favor intente mas tarde.";
+        string motivo = Request.QueryString["motivo"];
+        if (motivo == "integridad")
+        {
+            lblTitulo.Text  = "Sistema bloqueado";
+            lblMensaje.Text = "Se detectaron alteraciones en los datos del sistema. Contacte al WebMaster para restaurar la integridad.";
+        }
+        else
+        {
+            lblTitulo.Text  = "No esta disponible el sistema";
+            lblMensaje.Text = "Se produjo un error inesperado. Por favor intente mas tarde.";
+
+            if (Session["_DebugError"] != null)
+            {
+                lblMensaje.Text += "<br/><br/><strong style='color:#cc0000'>Detalle del error:</strong><br/>"
+                                 + Server.HtmlEncode(Session["_DebugError"].ToString());
+                Session.Remove("_DebugError");
+            }
+        }
     }
 </script>
 <!DOCTYPE html>

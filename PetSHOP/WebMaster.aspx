@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="WebMaster.aspx.cs" Inherits="WebMaster" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="WebMaster.aspx.cs" Inherits="WebMaster" EnableEventValidation="false" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">

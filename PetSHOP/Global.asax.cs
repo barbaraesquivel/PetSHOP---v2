@@ -30,10 +30,9 @@ public partial class Global : System.Web.HttpApplication
 
     protected void Session_Start(object sender, EventArgs e)
     {
+        InicializarHashesNulos();
         VerificarIntegridadSistema();
     }
-
-    // ----------------------------------------------------------------
 
     private void VerificarIntegridadSistema()
     {
@@ -117,7 +116,7 @@ public partial class Global : System.Web.HttpApplication
 
                 SqlCommand cmd = new SqlCommand(
                     "SELECT IdProducto, Nombre, Descripcion, Precio, Categoria " +
-                    "FROM Productos WHERE HashVerificador IS NULL", con);
+                    "FROM Productos WHERE HashVerificador IS NULL OR HashVerificador = ''", con);
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -166,6 +165,14 @@ public partial class Global : System.Web.HttpApplication
             }
             catch { }
             Bitacora.Registrar(usuario, "ERROR_APP", error.Message);
+            try
+            {
+                string detalle = error.GetType().Name + ": " + error.Message;
+                if (error.InnerException != null)
+                    detalle += " | Inner: " + error.InnerException.Message;
+                HttpContext.Current.Session["_DebugError"] = detalle;
+            }
+            catch { }
         }
         Server.ClearError();
         try { Response.Redirect("~/Error.aspx"); } catch { }
